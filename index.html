@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!-- JQuery CDN  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.2.6/dist/css/uikit.min.css" />
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.2.6/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.2.6/dist/js/uikit-icons.min.js"></script>
+</head>
+
+
+
+
+<body>
+
+        <div class="uk-container-expand">
+
+            <!-- Header -->
+            <h1 class="uk-heading-medium-divider uk-text-center uk-background-secondary uk-light uk-padding uk-panel">Weather Dashboard</h1>
+            <!-- Container -->
+            <div class="uk-grid">
+                <!-- First Column -->
+                    <div class="uk-width-auto">
+                       
+                        <!-- Search Label -->
+                        <div class="uk-form-label uk-margin-left uk-margin-bottom">Search for City:</div>
+                        <!-- Search Input -->
+                        <input class="uk-input uk-form-width-medium uk-margin-left" type="text" placeholder="Name of City">
+                        <!-- Search Button -->
+                        <button class="uk-button uk-button-default uk-background-primary uk-light" uk-icon="icon: search"></button>
+                        
+                        <!-- List of Cities -->
+                        <div>
+                                <ul class="uk-list uk-list-divider uk-margin-medium-top uk-margin-left">
+                                        <li>List item 1</li>
+                                        <li>List item 2</li>
+                                        <li>List item 3</li>
+                                    </ul>
+                        </div>
+
+                    </div>
+
+                            <!-- Second Column -->
+                    <div class="uk-width-expand uk-margin-left uk-divider-vertical">
+                          
+                            <!-- City Current Weather Div --> 
+                            <div id="currentWeather">
+                            
+                            <!-- City Div --> 
+                            <h1 id="city"></h1>
+                            <!-- Weather Condition img --> 
+                            <span id="weather-condition"></span>
+                            <!-- Temperature Div --> 
+                            <h2 id="temperature"></h2>
+                            <!-- Wind-Speed Div --> 
+                            <h2 id="wind-speed"></h2>
+                            <!-- UV-Index Div --> 
+                            <h2 id="uv-index"></h2>
+
+
+
+
+
+                            </div>
+
+
+                    </div>
+                    
+                    
+                </div>
+
+
+
+
+        </div>
+
+
+
+    
+</body>
+
+<script>
+
+var city = "London"
+
+
+
+function getCurrentWeather() {
+        var queryURL = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&APPID=a9acfaa21c0aaee39652d9380bd3e5fe"
+       
+
+        $.ajax({
+            url: queryURL,
+            method: "GET"
+
+
+        }).then(function(response) {
+            // Printing the entire object to console
+            console.log(queryURL);
+
+            // Constructing HTML to contain Current Weather info on selected City
+
+            var cityName = $("#city").text(response.name);
+
+            var cityWeatherCondition = $("#weather-condition").attr("href", response.weather.icon);
+            
+            var cityTemperature = $("#temperature").text(fahrenheit(response.main.temp) + "°F")
+            
+            function fahrenheit(kelvin) {
+                var tempFahrenheit = kelvin * (9/5) - 459.67;
+                tempFahrenheitRounded = Math.round(tempFahrenheit);
+                return tempFahrenheitRounded;
+
+            }
+            
+            
+
+
+
+
+        })
+        
+    }
+getCurrentWeather();
+
+
+
+
+</script>
+
+
+
+</html>
