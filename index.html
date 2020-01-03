@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Weather Dashboard</title>
     <!-- JQuery CDN  -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
@@ -14,6 +14,12 @@
     <!-- UIkit JS -->
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.2.6/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.2.6/dist/js/uikit-icons.min.js"></script>
+    <!-- Google Places JS API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAD0i06UImfSec8Gz6A8tAkgd70xINQyrI&libraries=places"></script>
+  
+    <!-- moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment-with-locales.min.js"></script>
+
 </head>
 
 
@@ -24,53 +30,75 @@
         <div class="uk-container-expand">
 
             <!-- Header -->
-            <h1 class="uk-heading-medium-divider uk-text-center uk-background-secondary uk-light uk-padding uk-panel">Weather Dashboard</h1>
+            <h1 class="uk-heading-small uk-text-center uk-background-secondary uk-light uk-padding-small uk-panel">Weather Dashboard</h1>
             <!-- Container -->
             <div class="uk-grid">
                 <!-- First Column -->
-                    <div class="uk-width-auto">
+                    <div class="uk-width-auto uk-padding">
                        
                         <!-- Search Label -->
                         <div class="uk-form-label uk-margin-left uk-margin-bottom">Search for City:</div>
                         <!-- Search Input -->
-                        <input class="uk-input uk-form-width-medium uk-margin-left" type="text" placeholder="Name of City">
+                        <input class="uk-input uk-form-width-medium uk-margin-left" type="text" placeholder="Name of City" id="name-city">
                         <!-- Search Button -->
-                        <button class="uk-button uk-button-default uk-background-primary uk-light" uk-icon="icon: search"></button>
+                        <button class="uk-button uk-button-default uk-background-primary uk-light" uk-icon="icon: search" id="search-city"></button>
                         
                         <!-- List of Cities -->
                         <div>
-                                <ul class="uk-list uk-list-divider uk-margin-medium-top uk-margin-left">
-                                        <li>List item 1</li>
-                                        <li>List item 2</li>
-                                        <li>List item 3</li>
+                                <ul class="uk-list uk-list-divider uk-margin-medium-top uk-margin-left" id="list">
+                                      
                                     </ul>
                         </div>
 
                     </div>
 
                             <!-- Second Column -->
-                    <div class="uk-width-expand uk-margin-left uk-divider-vertical">
+                            <div class="uk-width-expand uk-margin-left uk-divider-vertical">
                           
                             <!-- City Current Weather Div --> 
-                            <div id="currentWeather">
+                            <div class="uk-card-default uk-padding-small" id="currentWeather">
                             
                             <!-- City Div --> 
-                            <h1 id="city"></h1>
+                            <span class="uk-heading-small" id="city"></span>
                             <!-- Weather Condition img --> 
-                            <span id="weather-condition"></span>
+                            <img id="weather-condition">
                             <!-- Temperature Div --> 
-                            <h2 id="temperature"></h2>
+                            <div class="uk-heading-bullet uk-margin" id="temperature"></div>
+                            <!-- Humidity Div --> 
+                            <div class="uk-heading-bullet uk-margin" id="humidity"></div>
                             <!-- Wind-Speed Div --> 
-                            <h2 id="wind-speed"></h2>
+                            <div class="uk-heading-bullet uk-margin" id="wind-speed"></div>
                             <!-- UV-Index Div --> 
-                            <h2 id="uv-index"></h2>
-
-
-
-
-
+                            <div class="uk-margin" id="uv-index"></div>
+                            <!-- Five Day Forecast Div -->
+                            <div class="uk-margin">
+                                    Five Day Forecast:
+                                </div>
+                                <div class="uk-grid-column-small uk-child-width-expand" uk-grid>
+                                <div>
+                                        <div class="uk-card uk-card-default uk-card-body" id="1"></div>
+                                    </div>
+                                    <div>
+                                            <div class="uk-card uk-card-default uk-card-body" id="2"></div>
+                                        </div>
+                                        <div>
+                                                <div class="uk-card uk-card-default uk-card-body" id="3"></div>
+                                            </div>
+                                            <div>
+                                                    <div class="uk-card uk-card-default uk-card-body" id="4"></div>
+                                                </div>
+                                                <div>
+                                                        <div class="uk-card uk-card-default uk-card-body" id="5"></div>
+                                                    </div>
+                                                </div>
                             </div>
 
+                            
+                            
+
+                               
+                            
+                            
 
                     </div>
                     
@@ -89,11 +117,200 @@
 
 <script>
 
-var city = "London"
+// allows for default location
+navigator.geolocation.getCurrentPosition(function(position) {
+    const latitude  = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    console.log(latitude)
+    console.log(longitude)
+
+myURL = "http://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude +  "&APPID=a9acfaa21c0aaee39652d9380bd3e5fe"
+
+$.ajax({
+            url: myURL,
+            method: "GET"
+
+
+        }).then(function(response) {
+            // Printing the entire object to console
+            
+
+            // Constructing HTML to contain Current Weather info on selected City
+
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1; //January is 0!
+
+            var yyyy = today.getFullYear();
+            if (dd < 10) {
+            dd = '0' + dd;
+                } 
+            if (mm < 10) {
+             mm = '0' + mm;
+            } 
+            var today = mm + '/' + dd + '/' + yyyy;
+
+            var cityName = $("#city").text(response.name + " (" + today + ")    ");
+           
+
+            var cityWeatherCondition = $("#weather-condition").attr("src", "http://openweathermap.org/img/wn/" + response.weather[0].icon + ".png");
+            
+            var cityTemperature = $("#temperature").text("Temperature: " + fahrenheit(response.main.temp) + "°F")
+
+            var cityHumidity = $("#humidity").text("Humidity: " + response.main.humidity + "%");
+
+            var cityWindSpeed = $("#wind-speed").text("Wind Speed: " + response.wind.speed);
+
+            var uvURL = "http://api.openweathermap.org/data/2.5/uvi?appid=a9acfaa21c0aaee39652d9380bd3e5fe&lat=" + latitude + "&lon=" + longitude
+        $.ajax({
+            url: uvURL,
+            method: "GET"
+
+
+        }).then(function(response) {
+            console.log(response.value)
+            $("#uv-index").text("UV Index: " + response.value)
+            $("#uv-index").addClass("uk-button uk-button-secondary")
+
+
+        });
+
+        var fiveDayURL = "http://api.openweathermap.org/data/2.5/forecast?&lat="+ latitude + "&lon=" + longitude + "&appid=a9acfaa21c0aaee39652d9380bd3e5fe"
+        
+        $.ajax({
+            url: fiveDayURL,
+            method: "GET"
+
+
+        }).then(function(response) {
+            console.log(fiveDayURL)
+            // console.log(response.list[3].main.temp)
+            
+            $("#1").text("");
+            $("#2").text("");
+            $("#3").text("");
+            $("#4").text("");
+            $("#5").text("");
+
+            dayList = $("<div>" + oneDay +"</div>");
+            iconList = $("<div>");
+            iconImg = $("<img>");
+            iconImg.attr("src", "http://openweathermap.org/img/wn/" + response.list[3].weather[0].icon + ".png");
+            iconList.append(iconImg);
+            weatherList = $("<div>").text("Temperature: " + fahrenheit(response.list[3].main.temp) + "°F");
+            humidityList = $("<div>").text("Humidity: " + response.list[3].main.humidity + "%");
+            $("#1").append(dayList, iconList, weatherList, humidityList)
+            
+
+
+             // console.log(response.list[11].main.temp)
+
+            dayList1 = $("<div>" + twoDay +"</div>");
+            iconList1 = $("<div>");
+            iconImg1 = $("<img>");
+            iconImg1.attr("src", "http://openweathermap.org/img/wn/" + response.list[11].weather[0].icon + ".png");
+            iconList1.append(iconImg1);
+            weatherList1 = $("<div>").text("Temperature: " + fahrenheit(response.list[11].main.temp) + "°F");
+            humidityList1 = $("<div>").text("Humidity: " + response.list[11].main.humidity + "%");
+            $("#2").append(dayList1, iconList1, weatherList1, humidityList1)
+
+            // console.log(response.list[19].main.temp)
+
+            dayList2 = $("<div>" + threeDay +"</div>");
+            iconList2 = $("<div>");
+            iconImg2 = $("<img>");
+            iconImg2.attr("src", "http://openweathermap.org/img/wn/" + response.list[19].weather[0].icon + ".png");
+            iconList2.append(iconImg2);
+            weatherList2 = $("<div>").text("Temperature: " + fahrenheit(response.list[19].main.temp) + "°F");
+            humidityList2 = $("<div>").text("Humidity: " + response.list[19].main.humidity + "%");
+            $("#3").append(dayList2, iconList2, weatherList2, humidityList2)
+
+            // console.log(response.list[27].main.temp)
+
+            dayList3 = $("<div>" + fourDay +"</div>");
+            iconList3 = $("<div>");
+            iconImg3 = $("<img>");
+            iconImg3.attr("src", "http://openweathermap.org/img/wn/" + response.list[27].weather[0].icon + ".png");
+            iconList3.append(iconImg3);
+            weatherList3 = $("<div>").text("Temperature: " + fahrenheit(response.list[27].main.temp) + "°F");
+            humidityList3 = $("<div>").text("Humidity: " + response.list[27].main.humidity + "%");
+            $("#4").append(dayList3, iconList3, weatherList3, humidityList3)
+
+            // console.log(response.list[35].main.temp)
+
+            dayList4 = $("<div>" + fiveDay +"</div>");
+            iconList4 = $("<div>");
+            iconImg4 = $("<img>");
+            iconImg4.attr("src", "http://openweathermap.org/img/wn/" + response.list[35].weather[0].icon + ".png");
+            iconList4.append(iconImg4);
+            weatherList4 = $("<div>").text("Temperature: " + fahrenheit(response.list[35].main.temp) + "°F");
+            humidityList4 = $("<div>").text("Humidity: " + response.list[35].main.humidity + "%");
+            $("#5").append(dayList4, iconList4, weatherList4, humidityList4)
+
+            // for(var i = 3; i <= 35; i + 8) {
+            //     console.log(response.list[i].main.temp);
+            // }
+            
+       });
+
+        });
+        
+  
+}) 
+
+var input = document.getElementById('name-city');
+var options = {
+        types: ['(cities)']
+    };
+
+    var autocomplete = new google.maps.places.Autocomplete(input, options);
+
+// City Array
+var cityArray = [];
+
+// Each additional day in the forecast
+
+var oneDay = moment().add(1, 'days').format('LL');
+var twoDay = moment().add(2, 'days').format('LL');
+var threeDay = moment().add(3, 'days').format('LL');
+var fourDay = moment().add(4, 'days').format('LL');
+var fiveDay = moment().add(5, 'days').format('LL');
+
+// Call function to show Los Angeles as default
+// getCurrentWeather("Los Angeles")
+
+// Initate local storage for list of Cities
+
+initiateList();
+
+// Allows for creation of list of Cities
+
+function renderCities () {
+
+$("#list").text("")
+
+for (var i = 0; i < cityArray.length; i++) {
+ 
+ var eachCity = cityArray[i];
+ 
+ listOfCities = document.createElement("li")
+ listOfCities.textContent = eachCity;
 
 
 
-function getCurrentWeather() {
+$("#list").append(listOfCities);
+
+};
+};
+
+function fahrenheit(kelvin) {
+                var tempFahrenheit = kelvin * (9/5) - 459.67;
+                tempFahrenheitRounded = Math.round(tempFahrenheit);
+                return tempFahrenheitRounded;
+
+            }
+
+function getCurrentWeather(city) {
         var queryURL = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&APPID=a9acfaa21c0aaee39652d9380bd3e5fe"
        
 
@@ -108,28 +325,203 @@ function getCurrentWeather() {
 
             // Constructing HTML to contain Current Weather info on selected City
 
-            var cityName = $("#city").text(response.name);
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1; //January is 0!
 
-            var cityWeatherCondition = $("#weather-condition").attr("href", response.weather.icon);
+            var yyyy = today.getFullYear();
+            if (dd < 10) {
+            dd = '0' + dd;
+                } 
+            if (mm < 10) {
+             mm = '0' + mm;
+            } 
+            var today = mm + '/' + dd + '/' + yyyy;
+
+            var cityName = $("#city").text(response.name + " (" + today + ")    ");
+           
+
+            var cityWeatherCondition = $("#weather-condition").attr("src", "http://openweathermap.org/img/wn/" + response.weather[0].icon + ".png");
             
-            var cityTemperature = $("#temperature").text(fahrenheit(response.main.temp) + "°F")
-            
-            function fahrenheit(kelvin) {
-                var tempFahrenheit = kelvin * (9/5) - 459.67;
-                tempFahrenheitRounded = Math.round(tempFahrenheit);
-                return tempFahrenheitRounded;
+            var cityTemperature = $("#temperature").text("Temperature: " + fahrenheit(response.main.temp) + "°F")
 
-            }
+            var cityHumidity = $("#humidity").text("Humidity: " + response.main.humidity + "%");
+
+            var cityWindSpeed = $("#wind-speed").text("Wind Speed: " + response.wind.speed);
             
             
+        console.log(response.coord.lat);
+        console.log(response.coord.lon);
+
+        var lat = response.coord.lat
+        var lon = response.coord.lon
+    
+            
+        function getUV () {
+        var uvURL = "http://api.openweathermap.org/data/2.5/uvi?appid=a9acfaa21c0aaee39652d9380bd3e5fe&lat=" + lat + "&lon=" + lon
+        $.ajax({
+            url: uvURL,
+            method: "GET"
+
+
+        }).then(function(response) {
+            console.log(response.value)
+            $("#uv-index").text("UV Index: " + response.value)
+            $("#uv-index").addClass("uk-button uk-button-secondary")
+
+
+        });
+        };
+
+        getUV();
 
 
 
-
-        })
+       function getFiveDayForecast() {
+        var fiveDayURL = "http://api.openweathermap.org/data/2.5/forecast?&lat="+ lat + "&lon=" + lon + "&appid=a9acfaa21c0aaee39652d9380bd3e5fe"
         
+        $.ajax({
+            url: fiveDayURL,
+            method: "GET"
+
+
+        }).then(function(response) {
+            console.log(fiveDayURL)
+            // console.log(response.list[3].main.temp)
+            
+            $("#1").text("");
+            $("#2").text("");
+            $("#3").text("");
+            $("#4").text("");
+            $("#5").text("");
+
+            dayList = $("<div>" + oneDay +"</div>");
+            iconList = $("<div>");
+            iconImg = $("<img>");
+            iconImg.attr("src", "http://openweathermap.org/img/wn/" + response.list[3].weather[0].icon + ".png");
+            iconList.append(iconImg);
+            weatherList = $("<div>").text("Temperature: " + fahrenheit(response.list[3].main.temp) + "°F");
+            humidityList = $("<div>").text("Humidity: " + response.list[3].main.humidity + "%");
+            $("#1").append(dayList, iconList, weatherList, humidityList)
+            
+
+
+             // console.log(response.list[11].main.temp)
+
+            dayList1 = $("<div>" + twoDay +"</div>");
+            iconList1 = $("<div>");
+            iconImg1 = $("<img>");
+            iconImg1.attr("src", "http://openweathermap.org/img/wn/" + response.list[11].weather[0].icon + ".png");
+            iconList1.append(iconImg1);
+            weatherList1 = $("<div>").text("Temperature: " + fahrenheit(response.list[11].main.temp) + "°F");
+            humidityList1 = $("<div>").text("Humidity: " + response.list[11].main.humidity + "%");
+            $("#2").append(dayList1, iconList1, weatherList1, humidityList1)
+
+            // console.log(response.list[19].main.temp)
+
+            dayList2 = $("<div>" + threeDay +"</div>");
+            iconList2 = $("<div>");
+            iconImg2 = $("<img>");
+            iconImg2.attr("src", "http://openweathermap.org/img/wn/" + response.list[19].weather[0].icon + ".png");
+            iconList2.append(iconImg2);
+            weatherList2 = $("<div>").text("Temperature: " + fahrenheit(response.list[19].main.temp) + "°F");
+            humidityList2 = $("<div>").text("Humidity: " + response.list[19].main.humidity + "%");
+            $("#3").append(dayList2, iconList2, weatherList2, humidityList2)
+
+            // console.log(response.list[27].main.temp)
+
+            dayList3 = $("<div>" + fourDay +"</div>");
+            iconList3 = $("<div>");
+            iconImg3 = $("<img>");
+            iconImg3.attr("src", "http://openweathermap.org/img/wn/" + response.list[27].weather[0].icon + ".png");
+            iconList3.append(iconImg3);
+            weatherList3 = $("<div>").text("Temperature: " + fahrenheit(response.list[27].main.temp) + "°F");
+            humidityList3 = $("<div>").text("Humidity: " + response.list[27].main.humidity + "%");
+            $("#4").append(dayList3, iconList3, weatherList3, humidityList3)
+
+            // console.log(response.list[35].main.temp)
+
+            dayList4 = $("<div>" + fiveDay +"</div>");
+            iconList4 = $("<div>");
+            iconImg4 = $("<img>");
+            iconImg4.attr("src", "http://openweathermap.org/img/wn/" + response.list[35].weather[0].icon + ".png");
+            iconList4.append(iconImg4);
+            weatherList4 = $("<div>").text("Temperature: " + fahrenheit(response.list[35].main.temp) + "°F");
+            humidityList4 = $("<div>").text("Humidity: " + response.list[35].main.humidity + "%");
+            $("#5").append(dayList4, iconList4, weatherList4, humidityList4)
+
+            // for(var i = 3; i <= 35; i + 8) {
+            //     console.log(response.list[i].main.temp);
+            // }
+            
+       });
+       
+       };
+       getFiveDayForecast();
+    }); 
+    };
+    
+$("#search-city").on("click", function(event) {
+    event.preventDefault();
+    
+  
+    
+    
+    var city = $("#name-city").val().trim();
+  
+    
+
+
+    if (city === "") {
+    return;
+     }
+
+    
+    cityArray.push(city);
+    console.log(cityArray)
+
+     
+   
+    
+    
+    
+    storeCities();
+     renderCities();
+     getCurrentWeather(city);
+})
+
+
+function storeCities () {
+    localStorage.setItem("cities", JSON.stringify(cityArray));
+}
+
+function initiateList () {
+
+    var storedCities = JSON.parse(localStorage.getItem("cities"));
+console.log(storedCities)
+    if(storedCities !== null) {
+     cityArray = storedCities
     }
-getCurrentWeather();
+        renderCities();
+}
+
+$("#list").on("click", function (event) {
+    var element=event.target
+   if (element.matches("li") === true) {
+       city = $(element).text()
+   }
+   getCurrentWeather(city)
+
+})
+
+
+
+
+
+
+
+
+
 
 
 
