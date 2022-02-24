@@ -100,27 +100,9 @@ cursor: pointer;
                                                     </div>
                                                 </div>
                             </div>
-
-                            
-                            
-
-                               
-                            
-                            
-
                     </div>
-                    
-                    
                 </div>
-
-
-
-
         </div>
-
-
-
-    
 </body>
 
 <script>
@@ -267,11 +249,11 @@ $.ajax({
 }) 
 
 var input = document.getElementById('name-city');
-var options = {
-        types: ['(cities)']
-    };
+// var options = {
+//         types: ['(cities)']
+//     };
 
-    var autocomplete = new google.maps.places.Autocomplete(input, options);
+//     var autocomplete = new google.maps.places.Autocomplete(input, options);
 
 // City Array
 var cityArray = [];
@@ -472,14 +454,8 @@ function getCurrentWeather(city) {
 $("#search-city").on("click", function(event) {
     event.preventDefault();
     
-  
-    
-    
     var city = $("#name-city").val().trim();
   
-    
-
-
     if (city === "") {
     return;
      }
@@ -487,11 +463,6 @@ $("#search-city").on("click", function(event) {
     
     cityArray.push(city);
     console.log(cityArray)
-
-     
-   
-    
-    
     
     storeCities();
      renderCities();
@@ -522,20 +493,5 @@ $("#list").on("click", function (event) {
 
 })
 
-
-
-
-
-
-
-
-
-
-
-
-
 </script>
-
-
-
 </html>
