@@ -355,26 +355,29 @@
 
     // Each additional day in the forecast
 
-    // function renderCities() {
-    //   $("#list").text("");
+    function renderCities() {
+      $("#list").text("");
 
-    //   for (var i = 0; i < cityArray.length; i++) {
-    //     var eachCity = cityArray[i];
+      for (var i = 0; i < cityArray.length; i++) {
+        var eachCity = cityArray[i];
 
-    //     listOfCities = document.createElement("li");
-    //     listOfCities.textContent = eachCity;
+        listOfCities = document.createElement("li");
+        listOfCities.textContent = eachCity;
 
-    //     $("#list").append(listOfCities);
-    //   }
+        $("#list").append(listOfCities);
+      }
+    }
 
-    //   function initiateList() {
-    //     var storedCities = JSON.parse(localStorage.getItem("cities"));
-    //     console.log(storedCities);
-    //     if (storedCities !== null) {
-    //       cityArray = storedCities;
-    //     }
-    //     renderCities();
-    //   }
+      function initiateList() {
+        var storedCities = JSON.parse(localStorage.getItem("cities"));
+        console.log(storedCities);
+
+        if (storedCities !== null) {
+          cityArray = storedCities;
+        }
+
+        renderCities();
+      }
 
     // Initate local storage for list of Cities
 
@@ -393,11 +396,11 @@
         return;
       }
 
-      // cityArray.push(city);
-      // console.log(cityArray);
+      cityArray.push(city);
+      console.log(cityArray);
 
-      // storeCities();
-      // renderCities();
+      storeCities();
+      renderCities();
       getCurrentWeather(null, null, city);
       getFiveDayForecast(null, null, city);
     });
@@ -412,7 +415,8 @@
         city = $(element).text();
       }
 
-      getCurrentWeather(city);
+      getCurrentWeather(null, null, city);
+      getFiveDayForecast(null, null, city);
     });
 
     function getPosition() {
