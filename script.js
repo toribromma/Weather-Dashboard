@@ -47,8 +47,6 @@ function getCurrentWeather(lat, lon, city) {
       "&APPID=a9acfaa21c0aaee39652d9380bd3e5fe";
   }
 
-  // queryURL = encodeURI(query)
-
   $.ajax({
     url: currentCityWeatherQuery,
     method: "GET",
@@ -166,15 +164,20 @@ function getFiveDayForecast(lat, lon, city) {
 var input = document.getElementById("name-city");
 
 function renderCities() {
-  $("#list").text("");
-
+  $("#list").empty();
+  
   for (var i = 0; i < cityArray.length; i++) {
+    var mainDiv = $("<li>")
     var eachCity = cityArray[i];
+    var button = $("<button class='removeButton uk-button-small uk-button uk-button-default'>")
+    button.text("x");
+    button.attr("data-name", cityArray[i]);
+    // button.attr("class", "removeButton");
+    citySpan = $("<span class='uk-margin-small-right'>");
+    citySpan.text(eachCity);
+    mainDiv.append(citySpan, button);
 
-    listOfCities = document.createElement("li");
-    listOfCities.textContent = eachCity;
-
-    $("#list").append(listOfCities);
+    $("#list").append(mainDiv);
   }
 }
 
@@ -187,6 +190,11 @@ function renderCities() {
 
     renderCities();
   }
+
+  function storeCities() {
+    localStorage.setItem("cities", JSON.stringify(cityArray));
+  }
+  
 
 // Initate local storage for list of Cities
 
@@ -211,13 +219,14 @@ $("#search-city").on("click", function (event) {
   getFiveDayForecast(null, null, city);
 });
 
-function storeCities() {
-  localStorage.setItem("cities", JSON.stringify(cityArray));
-}
 
 $("#list").on("click", function (event) {
   var element = event.target;
-  if (element.matches("li") === true) {
+
+  if(element.matches("button") === true || element.matches("li") === true ) {
+    return null;
+  }
+  if (element.matches("span") === true) {
     city = $(element).text();
   }
 
@@ -243,3 +252,25 @@ getPosition()
   .catch((err) => {
     console.error(err.message);
   });
+
+  var removeCity = (event) => {
+    event.preventDefault()
+    // console.log(event)
+    var element = event.target;
+    console.log(element)
+    var dataName = $(element).attr("data-name");
+    console.log(dataName)
+    console.log(cityArray)
+    if(cityArray.indexOf(dataName) === -1) {
+      console.log("it doesn't exist in this array")
+    } else {
+      var index = cityArray.indexOf(dataName);
+      console.log(index);
+      cityArray.splice(index, 1);
+      storeCities();
+      initiateList();
+    }
+
+  }
+
+  $(".removeButton").on("click", removeCity);
