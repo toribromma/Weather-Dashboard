@@ -45,7 +45,7 @@
       <!-- Container -->
       <div class="uk-grid background">
         <!-- First Column -->
-        <div class="uk-width-auto uk-padding">
+        <div class="uk-padding uk-col-1-2 uk-margin-large-left">
           <!-- Search Label -->
           <div class="uk-form-label uk-margin-left uk-margin-bottom">
             Search for City:
@@ -74,7 +74,7 @@
         </div>
 
         <!-- Second Column -->
-        <div class="uk-width-expand uk-margin-left uk-divider-vertical">
+        <div class=" uk-column-1-8 uk-padding-large uk-margin-large-left">
           <!-- City Current Weather Div -->
           <div class="uk-card-default uk-padding-small" id="currentWeather">
             <!-- City Div -->
@@ -91,8 +91,8 @@
             <div class="uk-margin" id="uv-index"></div>
             <!-- Five Day Forecast Div -->
             <div class="uk-margin">Five Day Forecast:</div>
-            <div class="uk-grid-column-small" uk-grid>
-              <div>
+            <div id="fiveDayForecast" class="uk-grid-column-small" uk-grid>
+              <!-- <div>
                 <div class="uk-card uk-card-default uk-card-body" id="1"></div>
               </div>
               <div>
@@ -106,7 +106,7 @@
               </div>
               <div>
                 <div class="uk-card uk-card-default uk-card-body" id="5"></div>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -114,329 +114,7 @@
     </div>
   </body>
 
-  <script>
-    var lat = "";
-    var lon = "";
-    var city = "";
-    var cityArray = [];
-
-    var oneDay = moment().add(1, "days").format("LL");
-    var twoDay = moment().add(2, "days").format("LL");
-    var threeDay = moment().add(3, "days").format("LL");
-    var fourDay = moment().add(4, "days").format("LL");
-    var fiveDay = moment().add(5, "days").format("LL");
-
-    // allows for default location
-
-    function fahrenheit(kelvin) {
-      var tempFahrenheit = kelvin * (9 / 5) - 459.67;
-      tempFahrenheitRounded = Math.round(tempFahrenheit);
-      return tempFahrenheitRounded;
-    }
-
-    function getUV(uvQuery) {
-      $.ajax({
-        url: uvQuery,
-        method: "GET",
-      }).then(function (response) {
-        console.log(response);
-        $("#uv-index").text("UV Index: " + response.current.uvi);
-        $("#uv-index").addClass("uk-button uk-button-secondary");
-      });
-    }
-
-    function getCurrentWeather(lat, lon, city) {
-      console.log(city);
-      if (city) {
-        var currentCityWeatherQuery =
-          "https://api.openweathermap.org/data/2.5/weather?q=" +
-          city +
-          "&appid=a9acfaa21c0aaee39652d9380bd3e5fe";
-      } else {
-        var currentCityWeatherQuery =
-          "https://api.openweathermap.org/data/2.5/weather?lat=" +
-          lat +
-          "&lon=" +
-          lon +
-          "&APPID=a9acfaa21c0aaee39652d9380bd3e5fe";
-      }
-
-      console.log(currentCityWeatherQuery);
-
-      // queryURL = encodeURI(query)
-
-      $.ajax({
-        url: currentCityWeatherQuery,
-        method: "GET",
-      }).then(function (response) {
-        console.log(response);
-
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth() + 1; //January is 0!
-
-        var yyyy = today.getFullYear();
-        if (dd < 10) {
-          dd = "0" + dd;
-        }
-        if (mm < 10) {
-          mm = "0" + mm;
-        }
-
-        var today = mm + "/" + dd + "/" + yyyy;
-
-        var cityName = $("#city").text(response.name + " (" + today + ")    ");
-
-        var cityWeatherCondition = $("#weather-condition").attr(
-          "src",
-          "http://openweathermap.org/img/wn/" +
-            response.weather[0].icon +
-            ".png"
-        );
-
-        var cityTemperature = $("#temperature").text(
-          "Temperature: " + fahrenheit(response.main.temp) + "°F"
-        );
-
-        var cityHumidity = $("#humidity").text(
-          "Humidity: " + response.main.humidity + "%"
-        );
-
-        var cityWindSpeed = $("#wind-speed").text(
-          "Wind Speed: " + response.wind.speed
-        );
-
-        var currentLat = response.coord.lat;
-        var currentLon = response.coord.lon;
-        console.log(currentLat)
-
-        var uvQuery =
-          "https://api.openweathermap.org/data/2.5/onecall?appid=a9acfaa21c0aaee39652d9380bd3e5fe&lat=" +
-          currentLat +
-          "&lon=" +
-          currentLon;
-
-        getUV(uvQuery);
-      });
-    }
-
-    function getFiveDayForecast(lat, lon, city) {
-      console.log(city);
-      if (city) {
-        var currentFiveDayForecastQuery =
-          "https://api.openweathermap.org/data/2.5/forecast?q=" +
-          city +
-          "&appid=a9acfaa21c0aaee39652d9380bd3e5fe";
-      } else {
-        var currentFiveDayForecastQuery =
-          "https://api.openweathermap.org/data/2.5/forecast?&lat=" +
-          lat +
-          "&lon=" +
-          lon +
-          "&appid=a9acfaa21c0aaee39652d9380bd3e5fe";
-      }
-
-      $.ajax({
-        url: currentFiveDayForecastQuery,
-        method: "GET",
-      }).then(function (response) {
-        console.log(response);
-        $("#1").text("");
-        $("#2").text("");
-        $("#3").text("");
-        $("#4").text("");
-        $("#5").text("");
-
-        dayList = $("<div>" + oneDay + "</div>");
-        iconList = $("<div>");
-        iconImg = $("<img>");
-        iconImg.attr(
-          "src",
-          "https://openweathermap.org/img/wn/" +
-            response.list[3].weather[0].icon +
-            ".png"
-        );
-        iconList.append(iconImg);
-        weatherList = $("<div>").text(
-          "Temperature: " + fahrenheit(response.list[3].main.temp) + "°F"
-        );
-        humidityList = $("<div>").text(
-          "Humidity: " + response.list[3].main.humidity + "%"
-        );
-        $("#1").append(dayList, iconList, weatherList, humidityList);
-
-        dayList1 = $("<div>" + twoDay + "</div>");
-        iconList1 = $("<div>");
-        iconImg1 = $("<img>");
-        iconImg1.attr(
-          "src",
-          "https://openweathermap.org/img/wn/" +
-            response.list[11].weather[0].icon +
-            ".png"
-        );
-        iconList1.append(iconImg1);
-        weatherList1 = $("<div>").text(
-          "Temperature: " + fahrenheit(response.list[11].main.temp) + "°F"
-        );
-        humidityList1 = $("<div>").text(
-          "Humidity: " + response.list[11].main.humidity + "%"
-        );
-        $("#2").append(dayList1, iconList1, weatherList1, humidityList1);
-
-        dayList2 = $("<div>" + threeDay + "</div>");
-        iconList2 = $("<div>");
-        iconImg2 = $("<img>");
-        iconImg2.attr(
-          "src",
-          "https://openweathermap.org/img/wn/" +
-            response.list[19].weather[0].icon +
-            ".png"
-        );
-        iconList2.append(iconImg2);
-        weatherList2 = $("<div>").text(
-          "Temperature: " + fahrenheit(response.list[19].main.temp) + "°F"
-        );
-        humidityList2 = $("<div>").text(
-          "Humidity: " + response.list[19].main.humidity + "%"
-        );
-        $("#3").append(dayList2, iconList2, weatherList2, humidityList2);
-
-        // console.log(response.list[27].main.temp)
-
-        dayList3 = $("<div>" + fourDay + "</div>");
-        iconList3 = $("<div>");
-        iconImg3 = $("<img>");
-        iconImg3.attr(
-          "src",
-          "https://openweathermap.org/img/wn/" +
-            response.list[27].weather[0].icon +
-            ".png"
-        );
-        iconList3.append(iconImg3);
-        weatherList3 = $("<div>").text(
-          "Temperature: " + fahrenheit(response.list[27].main.temp) + "°F"
-        );
-        humidityList3 = $("<div>").text(
-          "Humidity: " + response.list[27].main.humidity + "%"
-        );
-        $("#4").append(dayList3, iconList3, weatherList3, humidityList3);
-
-        // console.log(response.list[35].main.temp)
-
-        dayList4 = $("<div>" + fiveDay + "</div>");
-        iconList4 = $("<div>");
-        iconImg4 = $("<img>");
-        iconImg4.attr(
-          "src",
-          "https://openweathermap.org/img/wn/" +
-            response.list[35].weather[0].icon +
-            ".png"
-        );
-        iconList4.append(iconImg4);
-        weatherList4 = $("<div>").text(
-          "Temperature: " + fahrenheit(response.list[35].main.temp) + "°F"
-        );
-        humidityList4 = $("<div>").text(
-          "Humidity: " + response.list[35].main.humidity + "%"
-        );
-        $("#5").append(dayList4, iconList4, weatherList4, humidityList4);
-      });
-    }
-
-    var input = document.getElementById("name-city");
-
-    // var options = {
-    //         types: ['(cities)']
-    //     };
-
-    //     var autocomplete = new google.maps.places.Autocomplete(input, options);
-
-    // City Array
-
-    // Each additional day in the forecast
-
-    function renderCities() {
-      $("#list").text("");
-
-      for (var i = 0; i < cityArray.length; i++) {
-        var eachCity = cityArray[i];
-
-        listOfCities = document.createElement("li");
-        listOfCities.textContent = eachCity;
-
-        $("#list").append(listOfCities);
-      }
-    }
-
-      function initiateList() {
-        var storedCities = JSON.parse(localStorage.getItem("cities"));
-        console.log(storedCities);
-
-        if (storedCities !== null) {
-          cityArray = storedCities;
-        }
-
-        renderCities();
-      }
-
-    // Initate local storage for list of Cities
-
-    //   initiateList();
-
-    // Allows for creation of list of Cities
-
-    $("#search-city").on("click", function (event) {
-      console.log("hi");
-      event.preventDefault();
-
-      city = $("#name-city").val().trim();
-      console.log(city);
-
-      if (city === "") {
-        return;
-      }
-
-      cityArray.push(city);
-      console.log(cityArray);
-
-      storeCities();
-      renderCities();
-      getCurrentWeather(null, null, city);
-      getFiveDayForecast(null, null, city);
-    });
-
-    function storeCities() {
-      localStorage.setItem("cities", JSON.stringify(cityArray));
-    }
-
-    $("#list").on("click", function (event) {
-      var element = event.target;
-      if (element.matches("li") === true) {
-        city = $(element).text();
-      }
-
-      getCurrentWeather(null, null, city);
-      getFiveDayForecast(null, null, city);
-    });
-
-    function getPosition() {
-      return new Promise((resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(resolve, reject)
-      );
-    }
-
-    getPosition()
-      .then((position) => {
-        let lat = position.coords.latitude;
-        console.log(lat);
-        let lon = position.coords.longitude;
-        console.log(lon);
-        getCurrentWeather(lat, lon);
-        getFiveDayForecast(lat, lon);
-        // getUV(lat, lon);
-      })
-      .catch((err) => {
-        console.error(err.message);
-      });
+  <script src="script.js">
+  
   </script>
 </html>
