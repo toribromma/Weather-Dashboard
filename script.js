@@ -172,7 +172,6 @@ function renderCities() {
     var button = $("<button class='removeButton uk-button-small uk-button uk-button-default'>")
     button.text("x");
     button.attr("data-name", cityArray[i]);
-    // button.attr("class", "removeButton");
     citySpan = $("<span class='uk-margin-small-right'>");
     citySpan.text(eachCity);
     mainDiv.append(citySpan, button);
@@ -272,5 +271,6 @@ getPosition()
     }
 
   }
-
-  $(".removeButton").on("click", removeCity);
+$(document).ready(function() {
+  $(document).on("click", ".removeButton", removeCity);
+})
